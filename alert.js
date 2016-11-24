@@ -7,11 +7,11 @@ var alertSchema = new Schema({
        type: String,
        required: true,
    },
-   Email: {
+   Email: [{
        type: String,
        required: true,
        match: [/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/, 'Please fill a valid email address'],
-   },
+   }],
    Trigger: {
        type: Date,
        required: true,

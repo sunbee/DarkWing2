@@ -14,7 +14,7 @@ describe("CRUD Operations", function() {
     before(function(done) {
         myAlert = new Alert({
             Note: "I went to meet Roger Pena at Cafe Pearl on 9th Main",
-            Email: 'sanjay.bhatikar@gmail.com',
+            Email: ['sanjay.bhatikar@gmail.com', 'zarthustra7@gmail.com'],
             Trigger: new Date(2016, 12, 01),
             Active: true,
         }); // End myAlert
@@ -36,7 +36,7 @@ describe("CRUD Operations", function() {
             Alert.findOne({}, function(err, res) {
                 assert.ifError(err);
                 console.log("Found: " + res);
-                assert.equal(res.Email, "sanjay.bhatikar@gmail.com");
+                assert.equal(res.Email[0], "sanjay.bhatikar@gmail.com");
                 done();
             }) // End findOne()
         }); // End save()
@@ -45,12 +45,13 @@ describe("CRUD Operations", function() {
     it("Finds and updates a record", function(done) {
         myAlert.save(function(err, doc) {
             assert.ifError(err);
-            Alert.findOneAndUpdate({Email: myAlert.Email}, {$set: {Active: false}}, function(err, doc) {
+            Alert.findOneAndUpdate({}, {$set: {Active: false}}, function(err, doc) {
                 assert.ifError(err);
                 Alert.findOne({}, function(err, doc) {
                     assert.ifError(err);
                     console.log("Found updated: ", doc);
-                    assert.equal(doc.Email, "sanjay.bhatikar@gmail.com");
+                    assert.equal(doc.Email[0], "sanjay.bhatikar@gmail.com");
+                    assert.equal(doc.Email[1], "zarthustra7@gmail.com");
                     assert.equal(doc.Active, false);
                     done();   
                 }); // End findOne()
