@@ -1,0 +1,28 @@
+{
+  "name": "darkwing2",
+  "version": "1.0.0",
+  "description": "voice from the grave, now with an API",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "voice",
+    "from",
+    "the",
+    "grave",
+    "breaking",
+    "bad"
+  ],
+  "author": "sunbee",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.14.0",
+    "mocha": "^3.1.2",
+    "mongoose": "^4.7.0",
+    "superagent": "^3.0.0",
+    "underscore": "^1.8.3",
+    "wagner": "^0.6.4",
+    "wagner-core": "^0.2.0"
+  }
+}
