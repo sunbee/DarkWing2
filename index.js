@@ -18,14 +18,19 @@ myAlert.save(function(err, doc) {
     console.log("Saved: " + doc);
 });
 
-var sendmail = require("sendmail")();
+var api_key = "key-e914a644a339c5ca4e64ba7439fb433b";
+var domain = "sandbox026824008ac34d809d25cedbfefc3021.mailgun.org";
+var mailgun = require("mailgun-js")({apiKey: api_key, domain: domain});
 
-sendmail( {
-   from:        'sunbee@gmail.com',
-   to:          'sanjay.bhatikar@gmail.com',
-   subject:     'Hello from Nodelicious!',
-   html:        'So we got this emailer worked out.',
-}, function(err, reply) {
+var data = {
+    from:       'Mail Gun <postmaster@sandbox026824008ac34d809d25cedbfefc3021.mailgun.org>',
+    to:         'sanjay.bhatikar@gmail.com',
+    subject:    'Two Magnums',
+    text:       'One, I keep in my desk drawer. Other, I keep close to my chest.',
+};
+
+mailgun.messages().send(data, function(err, doc) {
     if (err) throw err;
-    console.log("Done!");
+    console.log(doc);
 });
+
