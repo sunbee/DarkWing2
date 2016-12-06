@@ -3,6 +3,10 @@ var mongoose = require("mongoose");
 var Schema = mongoose.Schema;
 
 var alertSchema = new Schema({
+   _id: {
+       type: String,
+       required: true,
+   },
    Note: {
        type: String,
        required: true,

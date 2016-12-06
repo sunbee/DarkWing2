@@ -13,10 +13,11 @@ describe("CRUD Operations", function() {
     
     before(function(done) {
         myAlert = new Alert({
-            Note: "I went to meet Roger Pena at Cafe Pearl on 9th Main",
-            Email: ['sanjay.bhatikar@gmail.com', 'zarthustra7@gmail.com'],
-            Trigger: new Date(2016, 12, 01),
-            Active: true,
+            _id         : 1,
+            Note        : "I went to meet Roger Pena at Cafe Pearl on 9th Main",
+            Email       : ['sanjay.bhatikar@gmail.com', 'zarthustra7@gmail.com'],
+            Trigger     : new Date(2017, 02, 01),
+            Active      : true,
         }); // End myAlert
         done();
     }); // End before()
@@ -45,7 +46,7 @@ describe("CRUD Operations", function() {
     it("Finds and updates a record", function(done) {
         myAlert.save(function(err, doc) {
             assert.ifError(err);
-            Alert.findOneAndUpdate({}, {$set: {Active: false}}, function(err, doc) {
+            Alert.findOneAndUpdate({_id: 1}, {$set: {Active: false}}, function(err, doc) {
                 assert.ifError(err);
                 Alert.findOne({}, function(err, doc) {
                     assert.ifError(err);
