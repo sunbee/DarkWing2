@@ -17,7 +17,9 @@
   "author": "sunbee",
   "license": "ISC",
   "dependencies": {
+    "body-parser": "^1.15.2",
     "express": "^4.14.0",
+    "http-status": "^0.2.3",
     "mailgun-js": "^0.7.14",
     "mocha": "^3.1.2",
     "mongoose": "^4.7.0",
