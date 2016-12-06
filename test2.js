@@ -23,37 +23,25 @@ describe("CRUD Operations", function() {
         Alert = models.Alert;
     });
     
-    after(function() {
-    // Close server
-        server.close();
-    })
+    beforeEach(function() {
+    // Clean copy of database
+        Alert.remove(function(err) {
+            assert.ifError(err);
+        }); // End remove()
+    }); 
     
-    // beforeEach(function() {
-    // // Clean copy of database
-    //     Alert.remove(function(err) {
-    //         assert.ifError(err);
-    //     }); // End remove()
-    // }); 
-    
-
-    // before(function(done) {
-    //     myAlert = new Alert({
-    //         _id         : 1,
-    //         Note        : "I went to meet Roger Pena at Cafe Pearl on 9th Main",
-    //         Email       : ['sanjay.bhatikar@gmail.com', 'zarthustra7@gmail.com'],
-    //         Trigger     : new Date(2017, 02, 01),
-    //         Active      : true,
-    //     }); // End myAlert
-    //     done();
-    // }); // End before()
-
-
     after(function(done) {
         Alert.remove({}, function(error) {
             assert.ifError(error);
             done();
         }); // End remove()
     }); // End after()
+
+    after(function() {
+    // Close server
+        server.close();
+    })
+
     
 
     it("Inserts a record", function(done) {
@@ -69,34 +57,81 @@ describe("CRUD Operations", function() {
             .set('Accept', 'application/json')
             .end(function(err, res) {
                 assert.ifError(err);
+                assert.equal(res.body.Alert._id, 7);
+                assert.equal(res.body.Alert.Email[0], 'sanjay.bhatikar@gmail.com');
+                assert.equal(res.body.Alert.Email[1], 'zarthustra7@gmail.com');
                 Alert.findOne({_id: 7}, function(err, res) {
                     assert.ifError(err);
-                    console.log("Found: " + res);
+                    console.log("Created: " + res);
                     assert.equal(res.Email[0], "sanjay.bhatikar@gmail.com");
+                    assert.equal(res.Email[1], 'zarthustra7@gmail.com');
                     done();
                 }); // End findOne()
         }); // End post()
     }); // End it()
     
     it("Finds and updates a record", function(done) {
+        var myAlert = {
+            '_id'       : 7,
+            'Note'      : "I am DEA not CIA.",
+            'Email'     : ["sanjay.bhatikar@gmail.com", "zarthustra7@gmail.com"],
+            'Trigger'   : new Date(2017, 02, 01),
+        };
         var endpoint_put = URL_ROOT + '/deactivate/id/7';
         console.log(endpoint_put);
-        superagent.put(endpoint_put)
-            .set('Content-Type', 'application/json')
-            .send({})
-            .end(function(err, res) {
-                assert.ifError(err);
-                Alert.findOne({_id: 7}, function(err, res) {
+        
+        Alert.create(myAlert, function(err, doc) {
+            assert.ifError(err);
+            superagent.put(endpoint_put)
+                .set('Content-Type', 'application/json')
+                .send({})
+                .end(function(err, res) {
                     assert.ifError(err);
-                    console.log('Found deactivated: ' + res);
-                    assert.equal(res.Email[0], "sanjay.bhatikar@gmail.com");
-                    assert.equal(res.Email[1], "zarthustra7@gmail.com");
-                    assert.equal(res.Active, false);
-                    done();
-                }); // End findOne()
+                    Alert.findOne({_id: 7}, function(err, res) {
+                        assert.ifError(err);
+                        console.log('Updated: ' + res);
+                        assert.equal(res.Email[0], "sanjay.bhatikar@gmail.com");
+                        assert.equal(res.Email[1], "zarthustra7@gmail.com");
+                        assert.equal(res.Active, false);
+                        done();
+                    }); // End findOne()
             }); // End put()
+        }); // End create()
     }); // End it()
 
+    it('Says "Howdy!"', function(done) {
+        var endpoint_get = URL_ROOT + '/';
+        console.log(endpoint_get);
+        
+        superagent.get(endpoint_get, function(err, res) {
+            assert.ifError(err);
+            assert.equal(res.body.Greet, "Howdy!");
+            done();
+        }); // End get()
+    }); // End it()
+
+    it('Retrieves a record by ID', function(done) {
+        var myAlert = {
+            '_id'       : 7,
+            'Note'      : "I am DEA not CIA.",
+            'Email'     : ["sanjay.bhatikar@gmail.com", "zarthustra7@gmail.com"],
+            'Trigger'   : new Date(2017, 02, 01),
+        };
+        var endpoint_get = URL_ROOT + '/showAlert/id/7';
+        console.log(endpoint_get);
+
+        Alert.create(myAlert, function(err, doc) {
+            assert.ifError(err);
+            superagent.get(endpoint_get, function(err, res) {
+                assert.ifError(err);
+                assert.equal(res.body.Alert._id, 7);
+                assert.equal(res.body.Alert.Email[0], 'sanjay.bhatikar@gmail.com');
+                assert.equal(res.body.Alert.Email[1], 'zarthustra7@gmail.com');
+                done();
+            }); // End get()
+        }); // End create()
+    }); // End it()
+    
 }); // End describe()
 
 // After:

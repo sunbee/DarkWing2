@@ -7,13 +7,15 @@ module.exports = function(wagner){
     var api = express.Router();
     api.use(bodyParser.json());
     
-    api.get('/', function(req, res) {
+    api.get('/', wagner.invoke(function() {
+        return function(req, res) {
             res.send({Greet: "Howdy!"});
-        });
+        };
+    }));
 
     api.get('/showAlert/id/:id', wagner.invoke(function(Alert) {
         return function(req, res) {
-            Alert.findOne({_id: req.param.id}, function(err, doc) {
+            Alert.findOne({_id: req.params.id}, function(err, doc) {
                 if (err) {
                     return res
                         .status(status.INTERNAL_SERVER_ERROR)
