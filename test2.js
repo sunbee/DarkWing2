@@ -3,6 +3,8 @@ var assert = require("assert");
 var wagner = require("wagner-core")
 var superagent = require("superagent");
 var express = require("express");
+var httpStatus = require("http-status");
+var _ = require('underscore');
 
 var URL_ROOT = 'http://alterego-sunbee.c9users.io'
 // CRUD operations (Test) using 'Alert' model
@@ -68,6 +70,7 @@ describe("Test Suite", function() {
                     .end(function(err, res) {
                         assert.ifError(err);
                         assert.equal(res.body.Alert._id, 7);
+                        assert.equal(res.status, httpStatus.OK);
                         assert.equal(res.body.Alert.Email[0], 'sanjay.bhatikar@gmail.com');
                         assert.equal(res.body.Alert.Email[1], 'zarthustra7@gmail.com');
                         Alert.findOne({_id: 7}, function(err, res) {
@@ -94,6 +97,7 @@ describe("Test Suite", function() {
                     assert.ifError(err);
                     superagent.get(endpoint_get, function(err, res) {
                         assert.ifError(err);
+                        assert.equal(res.status, httpStatus.OK);
                         assert.equal(res.body.Alert._id, 7);
                         assert.equal(res.body.Alert.Email[0], 'sanjay.bhatikar@gmail.com');
                         assert.equal(res.body.Alert.Email[1], 'zarthustra7@gmail.com');
@@ -119,6 +123,7 @@ describe("Test Suite", function() {
                         .send({})
                         .end(function(err, res) {
                             assert.ifError(err);
+                            assert.equal(res.status, httpStatus.OK);
                             Alert.findOne({_id: 7}, function(err, res) {
                                 assert.ifError(err);
                                 console.log('Updated: ' + res);
@@ -158,9 +163,21 @@ describe("Test Suite", function() {
                 },
                 
                 ];
+                var endpoint_put = URL_ROOT + '/trigger';
+                console.log(endpoint_put);
+
                 Alert.insertMany(myAlerts, function(err, docs) {
                     assert.ifError(err);
                     assert.equal(docs.length, 3);
+                    var today = new Date();
+                    Alert.find({Trigger: {$gte: today}}, function(err, docs) {
+                        assert.ifError(err);
+                       _.each(docs, function(doc) {
+                           console.log("FOUND: " + doc);
+                           
+                       }) 
+                    })
+                    
                 });
                 // Search for trigger
                 // Send emails
@@ -168,3 +185,7 @@ describe("Test Suite", function() {
     }); // End describe() - 2nd inner
 }); // End describe() - outer
 
+/* TODOs:
+1. DONE Include assertions for HTTP status 
+2. Complete test for email
+*/
