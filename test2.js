@@ -5,6 +5,7 @@ var superagent = require("superagent");
 var express = require("express");
 var httpStatus = require("http-status");
 var _ = require('underscore');
+var moment = require('moment');
 
 var URL_ROOT = 'http://alterego-sunbee.c9users.io'
 // CRUD operations (Test) using 'Alert' model
@@ -13,22 +14,26 @@ describe("Test Suite", function() {
     var server;
     var Alert;
     
-    before(function() {
+    before(function(done) {
     // Bootstrap server    
         var app = express();
         
         var models = require("./models.js")(wagner);
+        var mails = require('./mails.js')(wagner);
         app.use(require("./api.js")(wagner));
         
         server = app.listen(process.env.PORT);
         
         Alert = models.Alert;
+        mailgun = mails.mailgun;
+        done();
     });
     
-    beforeEach(function() {
+    beforeEach(function(done) {
     // Clean copy of database
         Alert.remove(function(err) {
             assert.ifError(err);
+            done();
         }); // End remove()
     }); 
     
@@ -39,9 +44,10 @@ describe("Test Suite", function() {
         }); // End remove()
     }); // End after()
 
-    after(function() {
+    after(function(done) {
     // Close server
         server.close();
+        done();
     });
 
     describe('CRUD Operations', function() {
@@ -51,6 +57,7 @@ describe("Test Suite", function() {
                 
                 superagent.get(endpoint_get, function(err, res) {
                     assert.ifError(err);
+                    assert.equal(res.status, httpStatus.OK);
                     assert.equal(res.body.Greet, "Howdy!");
                     done();
                 }); // End get()
@@ -139,46 +146,120 @@ describe("Test Suite", function() {
 
     describe("Email operations", function() {
     
-        it("Sets off trigger", function() {
+        it("Sets off trigger", function(done) {
             // Create a bunch of data, one with today's date
+            var today = moment().startOf('day');
+            var nextMonth = moment(today).add(1, 'months');
+            var lastMonth = moment(today).add(-1, 'months');
             var myAlerts = [
                 {
                     '_id'       : 7,
                     'Note'      : "I am DEA not CIA.",
                     'Email'     : ["sanjay.bhatikar@gmail.com", "zarthustra7@gmail.com"],
-                    'Trigger'   : new Date(2017, 02, 01),
+                    'Trigger'   : lastMonth.toDate(),
                 },
                 {
                     '_id'       : 8,
                     'Note'      : "Harleen is my new Tinder date.",
                     'Email'     : ["zarthustra7@gmail.com", "sanjay.bhatikar@gmail.com"],
-                    'Trigger'   : new Date(),
+                    'Trigger'   : today.toDate(),
                     
                 },
                 {
                     '_id'       : 9,
                     'Note'      : "Pollo Hermanos: Chicken that tastes like shrimp.",
                     'Email'     : ["sanjay.bhatikar@gmail.com"],
-                    'Trigger'   : new Date(2017, 02, 02),
+                    'Trigger'   : nextMonth.toDate(),
+                },
+                {
+                    '_id'       : 10,
+                    'Note'      : "Marcellus asked me to take care of his wife, Mia, show her a good time.",
+                    'Email'     : ["sanjay.bhatikar@gmail.com"],
+                    'Trigger'   : nextMonth.toDate(),
+                },
+                {
+                    '_id'       : 11,
+                    'Note'      : "Salut. I am off to Pyongyang.",
+                    'Email'     : ["sanjay.bhatikar@gmail.com"],
+                    'Trigger'   : nextMonth.toDate(),
                 },
                 
                 ];
-                var endpoint_put = URL_ROOT + '/trigger';
-                console.log(endpoint_put);
+                var endpoint_trigger = URL_ROOT + '/trigger';
+                console.log(endpoint_trigger);
 
+                var today = moment().startOf('day');
+                var tomorrow = moment(today).add(1, 'days');
                 Alert.insertMany(myAlerts, function(err, docs) {
                     assert.ifError(err);
-                    assert.equal(docs.length, 3);
-                    var today = new Date();
-                    Alert.find({Trigger: {$gte: today}}, function(err, docs) {
-                        assert.ifError(err);
-                       _.each(docs, function(doc) {
-                           console.log("FOUND: " + doc);
-                           
-                       }) 
-                    })
+                    assert.equal(docs.length, 5);
+                    superagent.get(endpoint_trigger, function(err, res) {
+                        assert.equal(res.status, httpStatus.OK);
+                        assert.equal(res.body.Trigger.number, 1);
+                        assert.equal(res.body.Trigger.emails.length, 2);
+                        done();
+                    }); 
+                }); // End insertMany() 
+                // Search for trigger
+                // Send emails
+       }); // End it()
+       
+        it("Sets off trigger with DB CRUD", function(done) {
+            // Create a bunch of data, one with today's date
+            var today = moment().startOf('day');
+            var nextMonth = moment(today).add(1, 'months');
+            var lastMonth = moment(today).add(-1, 'months');
+            var myAlerts = [
+                {
+                    '_id'       : 7,
+                    'Note'      : "I am DEA not CIA.",
+                    'Email'     : ["sanjay.bhatikar@gmail.com", "zarthustra7@gmail.com"],
+                    'Trigger'   : lastMonth.toDate(),
+                },
+                {
+                    '_id'       : 8,
+                    'Note'      : "Harleen is my new Tinder date.",
+                    'Email'     : ["zarthustra7@gmail.com", "sanjay.bhatikar@gmail.com"],
+                    'Trigger'   : today.toDate(),
                     
-                });
+                },
+                {
+                    '_id'       : 9,
+                    'Note'      : "Pollo Hermanos: Chicken that tastes like shrimp.",
+                    'Email'     : ["sanjay.bhatikar@gmail.com"],
+                    'Trigger'   : nextMonth.toDate(),
+                },
+                {
+                    '_id'       : 10,
+                    'Note'      : "Marcellus asked me to take care of his wife, Mia, show her a good time.",
+                    'Email'     : ["sanjay.bhatikar@gmail.com"],
+                    'Trigger'   : nextMonth.toDate(),
+                },
+                {
+                    '_id'       : 11,
+                    'Note'      : "Salut. I am off to Pyongyang.",
+                    'Email'     : ["sanjay.bhatikar@gmail.com"],
+                    'Trigger'   : nextMonth.toDate(),
+                },
+                
+                ];
+                var endpoint_trigger = URL_ROOT + '/trigger';
+                console.log(endpoint_trigger);
+
+                var today = moment().startOf('day');
+                var tomorrow = moment(today).add(1, 'days');
+                Alert.insertMany(myAlerts, function(err, docs) {
+                    assert.ifError(err);
+                    assert.equal(docs.length, 5);
+                    Alert.find({Trigger: {$gte: today.toDate(), $lte: tomorrow.toDate()}}, function(err, docs) {
+                        assert.ifError(err);
+                        console.log("FOUND: " + docs.length);
+                       _.each(docs, function(doc) {
+                            console.log("FOUND: " + doc);
+                            done();
+                       }); // End each() 
+                    }); // End find()
+                }); // End insertMany() 
                 // Search for trigger
                 // Send emails
        }); // End it()

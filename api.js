@@ -2,6 +2,7 @@
 var express = require("express");
 var status = require("http-status");
 var bodyParser = require("body-parser");
+var moment = require('moment');
 
 module.exports = function(wagner){
     var api = express.Router();
@@ -63,5 +64,37 @@ module.exports = function(wagner){
         } // End function (req, res)
     })); // End api.get()
  
+    api.get('/trigger', wagner.invoke(function(Alert, mailgun) {
+        var data = {
+            from:       'Mail Gun <postmaster@sandbox026824008ac34d809d25cedbfefc3021.mailgun.org>',
+            to:         'sanjay.bhatikar@gmail.com',
+            subject:    'Two Magnums too many',
+            text:       'One, I keep in my desk drawer. Other, I keep close to my chest.',
+        };
+        return function(req, res) {
+            var toDay = moment().startOf('day');
+            var toMor = moment(toDay).add(1, 'days');
+            Alert.find({Trigger: {$gte: toDay, $lte: toMor}}, function(err, docs) {
+                if (err) {
+                    return res
+                        .status(status.INTERNAL_SERVER_ERROR)
+                        .json({error: err.toString()});
+                } else {
+                    mailgun.messages().send(data, function(err, doc) {
+                        if (err) {
+                            return res
+                            .status(status.INTERNAL_SERVER_ERROR)
+                            .json({error: err.toString()});
+                        } else {
+                            return res
+                                .status(status.OK)
+                                .json({Trigger: doc});
+                        }; // End if-else
+                    }); // End send()
+                } // End else
+            }); // End find()
+        }; // End function (req, res)
+    })); // End api.get()
+    
     return api;
 }
