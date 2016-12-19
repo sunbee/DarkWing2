@@ -181,7 +181,7 @@ describe("Test Suite", function() {
                     '_id'       : 11,
                     'Note'      : "Salut. I am off to Pyongyang.",
                     'Email'     : ["sanjay.bhatikar@gmail.com"],
-                    'Trigger'   : nextMonth.toDate(),
+                    'Trigger'   : today.toDate(),
                 },
                 
                 ];
@@ -195,8 +195,8 @@ describe("Test Suite", function() {
                     assert.equal(docs.length, 5);
                     superagent.get(endpoint_trigger, function(err, res) {
                         assert.equal(res.status, httpStatus.OK);
-                        assert.equal(res.body.Trigger.number, 1);
-                        assert.equal(res.body.Trigger.emails.length, 2);
+                        assert.equal(res.body.Trigger.number, 2);
+                        assert.equal(res.body.Trigger.emails.length, 3);
                         done();
                     }); 
                 }); // End insertMany() 

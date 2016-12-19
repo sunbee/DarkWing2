@@ -3,6 +3,7 @@ var express = require("express");
 var status = require("http-status");
 var bodyParser = require("body-parser");
 var moment = require('moment');
+var _ = require("underscore");
 
 module.exports = function(wagner){
     var api = express.Router();
@@ -68,8 +69,12 @@ module.exports = function(wagner){
         var data = {
             from:       'Mail Gun <postmaster@sandbox026824008ac34d809d25cedbfefc3021.mailgun.org>',
             to:         'sanjay.bhatikar@gmail.com',
-            subject:    'Two Magnums too many',
-            text:       'One, I keep in my desk drawer. Other, I keep close to my chest.',
+            subject:    'Alert from ',
+            text:       'Insert the note here.',
+        };
+        var send = {
+            number: 0,
+            emails: [],
         };
         return function(req, res) {
             var toDay = moment().startOf('day');
@@ -80,17 +85,24 @@ module.exports = function(wagner){
                         .status(status.INTERNAL_SERVER_ERROR)
                         .json({error: err.toString()});
                 } else {
-                    mailgun.messages().send(data, function(err, doc) {
-                        if (err) {
-                            return res
-                            .status(status.INTERNAL_SERVER_ERROR)
-                            .json({error: err.toString()});
-                        } else {
-                            return res
-                                .status(status.OK)
-                                .json({Trigger: doc});
-                        }; // End if-else
-                    }); // End send()
+                    send.number = docs.length;
+                    _.each(docs, function(doc2trigger) {
+                        data.to = doc2trigger.Email.join(", ");
+                        data.subject += 'a friend in need';
+                        data.text = doc2trigger.Note;
+                        send.emails = send.emails.concat(doc2trigger.Email);
+                        mailgun.messages().send(data, function(err, doc) {
+                            if (err) {
+                                return res
+                                    .status(status.INTERNAL_SERVER_ERROR)
+                                    .json({error: err.toString()});
+                            } else {
+                            }; // End if-else
+                        }); // End send()
+                    }); // End each()
+                    return res
+                        .status(status.OK)
+                        .json({Trigger: send});
                 } // End else
             }); // End find()
         }; // End function (req, res)
