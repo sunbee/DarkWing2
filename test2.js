@@ -194,6 +194,7 @@ describe("Test Suite", function() {
                     assert.ifError(err);
                     assert.equal(docs.length, 5);
                     superagent.get(endpoint_trigger, function(err, res) {
+                        assert.ifError(err);
                         assert.equal(res.status, httpStatus.OK);
                         assert.equal(res.body.Trigger.number, 2);
                         assert.equal(res.body.Trigger.emails.length, 3);

@@ -2,7 +2,9 @@
 var express = require("express");
 var wagner = require("wagner-core");
 
-var models = require("./models.js")(wagner);
+require("./models.js")(wagner);
+require('./mails.js')(wagner);
+ 
 var app = express();
 
 app.use('/api/v1/', require("./api.js")(wagner));
