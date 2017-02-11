@@ -115,8 +115,8 @@ describe("CRUD Operations", function() {
                     console.log("FOUND: " + docs.length);
                    _.each(docs, function(doc) {
                         console.log("FOUND: " + doc);
-                        done();
-                    }); // End each() 
+                    }); // End each()
+                    done();
                 }); // End find()
             }); // End insertMany() 
             // Search for trigger
