@@ -80,28 +80,24 @@ module.exports = function(wagner){
             var toDay = moment().startOf('day');
             var toMor = moment(toDay).add(1, 'days');
             Alert.find({Trigger: {$gte: toDay, $lte: toMor}}, function(err, docs) {
-                console.log("API GET TRIGGERING ACTION!!!");
                 if (err) {
-                    console.log("MAD ERROR! Got " + err);
                     return res
                         .status(status.INTERNAL_SERVER_ERROR)
                         .json({error: err.toString()});
                 } else {
-                    console.log("DOING RIGHT! Sending " + docs.length);
-                    send.number = docs.length;
+                    send.number += docs.length;
                     _.each(docs, function(doc2email) {
                         data.to = doc2email.Email.join(", ");
-                        data.subject += 'a friend in need';
+                        data.subject = 'A friend in need';
                         data.text = doc2email.Note;
-                        console.log("DOING RIGHT! Sending " + JSON.stringify(data));
                         send.emails = send.emails.concat(doc2email.Email);
                         mailgun.messages().send(data, function(err, doc) {
-                            console.log("MAILGUN SENDING: " + doc);
                             if (err) {
                                 return res
                                     .status(status.INTERNAL_SERVER_ERROR)
                                     .json({error: err.toString()});
                             } else {
+                                // Do nothing
                             }; // End if-else
                         }); // End send()
                     }); // End each()

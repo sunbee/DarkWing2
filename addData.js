@@ -49,7 +49,7 @@ describe("CRUD Operations", function() {
     it("Finds and updates a record", function(done) {
         myAlert.save(function(err, doc) {
             assert.ifError(err);
-            Alert.findOneAndUpdate({_id: 1}, {$set: {Active: false}}, function(err, doc) {
+            Alert.findOneAndUpdate({_id: 17}, {$set: {Active: false}}, function(err, doc) {
                 assert.ifError(err);
                 Alert.findOne({}, function(err, doc) {
                     assert.ifError(err);

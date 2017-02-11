@@ -269,5 +269,5 @@ describe("Test Suite", function() {
 
 /* TODOs:
 1. DONE Include assertions for HTTP status 
-2. Complete test for email
+2. DONE Complete test for email
 */
